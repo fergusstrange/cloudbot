@@ -3,10 +3,13 @@ package io.cloudbot.slack;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 import static com.ullink.slack.simpleslackapi.impl.SlackSessionFactory.createWebSocketSlackSession;
@@ -16,16 +19,30 @@ public class SlackConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(SlackConfiguration.class);
 
+    @Autowired
+    private SlackSession slackSession;
+
     @Bean
     public SlackSession slackSession(@Value("${slackAuthToken}") String slackAuthToken) {
-        SlackSession slackSession = createWebSocketSlackSession(slackAuthToken);
+        return createWebSocketSlackSession(slackAuthToken);
+    }
+
+    @PostConstruct
+    public void connect() {
         try {
             slackSession.connect();
         } catch (IOException e) {
-            logger.error("Unable to connect to slack with provided Auth Token.");
-            System.exit(1);
+            logger.error("Unable to connect to slack with provided auth token");
+            throw new IllegalStateException();
         }
-        return slackSession;
     }
 
+    @PreDestroy
+    public void disconnect() {
+        try {
+            slackSession.disconnect();
+        } catch (IOException e) {
+            logger.error("Unable to disconnect from slack");
+        }
+    }
 }
