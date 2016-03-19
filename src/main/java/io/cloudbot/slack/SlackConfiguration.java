@@ -21,8 +21,7 @@ public class SlackConfiguration {
         SlackSession slackSession = createWebSocketSlackSession(slackAuthToken);
         try {
             slackSession.connect();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.error("Unable to connect to slack with provided Auth Token.");
             System.exit(1);
         }
