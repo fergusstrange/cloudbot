@@ -1,6 +1,12 @@
 language: java
 jdk:
   - oraclejdk8
+services:
+  - docker
 cache:
   directories:
   - $HOME/.gradle
+after_success:
+  - ./build-docker.sh
+  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push fergusstrange/cloudbot-slack-integration
