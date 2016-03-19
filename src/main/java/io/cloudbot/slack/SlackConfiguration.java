@@ -1,7 +1,6 @@
 package io.cloudbot.slack;
 
 import com.ullink.slack.simpleslackapi.SlackSession;
-import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 
+import static com.ullink.slack.simpleslackapi.impl.SlackSessionFactory.createWebSocketSlackSession;
+
 @Configuration
 public class SlackConfiguration {
 
@@ -17,7 +18,7 @@ public class SlackConfiguration {
 
     @Bean
     public SlackSession slackSession(@Value("${slackAuthToken}") String slackAuthToken) {
-        SlackSession slackSession = SlackSessionFactory.createWebSocketSlackSession(slackAuthToken);
+        SlackSession slackSession = createWebSocketSlackSession(slackAuthToken);
         try {
             slackSession.connect();
         }
