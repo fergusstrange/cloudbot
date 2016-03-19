@@ -4,6 +4,7 @@ import com.ullink.slack.simpleslackapi.SlackSession;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class SlackServiceTest {
 
@@ -12,7 +13,9 @@ public class SlackServiceTest {
     private final SlackService slackService = new SlackService(slackSession, directMessagePostedListener);
 
     @Test
-    public void shouldName() throws Exception {
+    public void shouldAddListener() throws Exception {
         slackService.listenForDirectMessage();
+
+        verify(slackSession).addMessagePostedListener(directMessagePostedListener);
     }
 }
