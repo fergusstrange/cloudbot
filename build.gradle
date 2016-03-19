@@ -1,0 +1,40 @@
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+
+group 'io.cloudbot'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+jar {
+    baseName = 'slackbot-integration'
+    version =  null
+}
+
+dependencies {
+    testCompile "junit:junit:4.11"
+
+    compile "org.springframework.boot:spring-boot-starter-web:1.3.3.RELEASE"
+    compile "org.springframework.boot:spring-boot-starter-actuator:1.3.3.RELEASE"
+    compile "com.github.Ullink:simple-slack-api:0.5.1"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.3.RELEASE")
+    }
+}
