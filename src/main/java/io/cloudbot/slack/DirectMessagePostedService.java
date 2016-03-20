@@ -10,13 +10,15 @@ import org.springframework.stereotype.Component;
 import static java.lang.String.format;
 
 @Component
-public class DirectMessagePostedListener implements SlackMessagePostedListener {
+public class DirectMessagePostedService implements SlackMessagePostedListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(DirectMessagePostedListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(DirectMessagePostedService.class);
 
     @Override
     public void onEvent(SlackMessagePosted event, SlackSession session) {
         logger.info(formattedMessage(event));
+        //Is authenticated?
+        //
     }
 
     private String formattedMessage(SlackMessagePosted event) {

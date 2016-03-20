@@ -7,9 +7,9 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
 
-public class DirectMessagePostedListenerTest {
+public class DirectMessagePostedServiceTest {
 
-    private final DirectMessagePostedListener directMessagePostedListener = new DirectMessagePostedListener();
+    private final DirectMessagePostedService directMessagePostedService = new DirectMessagePostedService();
 
     @Test
     @Ignore
@@ -17,6 +17,6 @@ public class DirectMessagePostedListenerTest {
         SlackMessagePosted event = mock(SlackMessagePosted.class);
         SlackSession session = mock(SlackSession.class);
 
-        directMessagePostedListener.onEvent(event, session);
+        directMessagePostedService.onEvent(event, session);
     }
 }
