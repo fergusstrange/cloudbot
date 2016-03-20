@@ -16,19 +16,12 @@ import static org.mockito.Mockito.verify;
 public class SlackServiceTest {
 
     @Mock
-    private DirectMessagePostedListener directMessagePostedListener;
+    private DirectMessagePostedService directMessagePostedService;
     @Mock
     private SlackSession slackSession;
     
     @InjectMocks
     private SlackService slackService;
-
-    @Test
-    public void shouldAddListener() throws Exception {
-        slackService.listenForDirectMessage();
-
-        verify(slackSession).addMessagePostedListener(directMessagePostedListener);
-    }
 
     @Test
     public void shouldConnectToSlack() throws Exception {

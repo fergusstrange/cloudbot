@@ -16,18 +16,18 @@ public class SlackService {
     private static final Logger logger = LoggerFactory.getLogger(SlackService.class);
 
     private final SlackSession webSocketSlackSession;
-    private final DirectMessagePostedListener directMessagePostedListener;
+    private final DirectMessagePostedService directMessagePostedService;
 
     @Autowired
     public SlackService(SlackSession webSocketSlackSession,
-                        DirectMessagePostedListener directMessagePostedListener) {
+                        DirectMessagePostedService directMessagePostedService) {
         this.webSocketSlackSession = webSocketSlackSession;
-        this.directMessagePostedListener = directMessagePostedListener;
+        this.directMessagePostedService = directMessagePostedService;
     }
 
     @PostConstruct
-    public void listenForDirectMessage() {
-        webSocketSlackSession.addMessagePostedListener(directMessagePostedListener);
+    public void  listenForDirectMessage() {
+        webSocketSlackSession.addMessagePostedListener(directMessagePostedService::processDirectMessage);
     }
 
     @PostConstruct
