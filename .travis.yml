@@ -8,6 +8,6 @@ cache:
   - $HOME/.gradle
   - $HOME/.docker
 after_success:
-  - ./build-docker.sh
+  - ./build-docker.sh --skipGradle
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker push fergusstrange/cloudbot-slack-integration

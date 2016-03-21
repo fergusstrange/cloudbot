@@ -1,5 +1,6 @@
 #!/bin/bash
-if [ ! -f build/libs/slackbot-integration.jar ]; then
+
+if [ "$1" != "--skipGradle" ]; then
     ./gradlew clean build
 fi
 docker build -t fergusstrange/cloudbot-slack-integration .
