@@ -3,7 +3,7 @@ package io.cloudbot.ec2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
 import io.cloudbot.aws.AWSEnvironment;
-import io.cloudbot.aws.EC2Service;
+import io.cloudbot.aws.EC2InstanceCreationService;
 import org.hamcrest.CoreMatchers;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EC2ServiceTest {
+public class EC2InstanceCreationServiceTest {
 
     @Mock
     private AmazonEC2Client amazonEC2;
@@ -31,7 +31,7 @@ public class EC2ServiceTest {
     private AWSEnvironment awsEnvironment;
 
     @InjectMocks
-    private EC2Service ec2Service;
+    private EC2InstanceCreationService ec2InstanceCreationService;
 
     @Test
     public void shouldCallAmazonAPIWithCorrectValues() throws Exception {
@@ -51,7 +51,7 @@ public class EC2ServiceTest {
         given(reservation.getInstances()).willReturn(Collections.singletonList(instance));
         given(instance.getInstanceId()).willReturn("abcdefg123456");
 
-        List<String> instanceIds = ec2Service.createInstance(asList(new Tag("Name", "Anything"), new Tag("ShutdownDate", LocalDateTime.now().toString())));
+        List<String> instanceIds = ec2InstanceCreationService.createInstance(asList(new Tag("Name", "Anything"), new Tag("ShutdownDate", LocalDateTime.now().toString())));
 
         assertThat(instanceIds, CoreMatchers.hasItem("abcdefg123456"));
     }

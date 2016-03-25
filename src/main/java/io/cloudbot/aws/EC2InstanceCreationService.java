@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 import static com.amazonaws.services.ec2.model.InstanceType.T2Micro;
 
 @Component
-public class EC2Service {
+public class EC2InstanceCreationService {
 
     private final AWSEnvironment awsEnvironment;
     private final AmazonEC2 client;
 
     @Autowired
-    public EC2Service(AWSEnvironment awsEnvironment, AmazonEC2 client) {
+    public EC2InstanceCreationService(AWSEnvironment awsEnvironment, AmazonEC2 client) {
         this.awsEnvironment = awsEnvironment;
         this.client = client;
     }
