@@ -1,9 +1,7 @@
-package io.cloudbot.ec2;
+package io.cloudbot.aws;
 
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
-import io.cloudbot.aws.AWSEnvironment;
-import io.cloudbot.aws.EC2InstanceCreationService;
 import org.hamcrest.CoreMatchers;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
