@@ -13,7 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static com.amazonaws.services.ec2.model.InstanceType.T2Micro;
+import static com.amazonaws.services.ec2.model.InstanceType.T2Nano;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,7 +50,7 @@ public class EC2InstanceCreationServiceTest {
 
         given(client.runInstances(eq(new RunInstancesRequest()
                 .withImageId(awsEnvironment.getAwsDefaultImageId())
-                .withInstanceType(T2Micro)
+                .withInstanceType(T2Nano)
                 .withMinCount(1)
                 .withMaxCount(1)
                 .withKeyName("aKeyName")

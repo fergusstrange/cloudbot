@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static com.amazonaws.services.ec2.model.InstanceType.T2Micro;
+import static com.amazonaws.services.ec2.model.InstanceType.T2Nano;
 import static java.util.stream.Collectors.toList;
 
 @Component
@@ -41,7 +41,7 @@ public class EC2InstanceCreationService {
 
         List<Instance> instances = client.runInstances(new RunInstancesRequest()
                 .withImageId(awsEnvironment.getAwsDefaultImageId())
-                .withInstanceType(T2Micro)
+                .withInstanceType(T2Nano)
                 .withMinCount(1)
                 .withMaxCount(1)
                 .withKeyName(keyName)
