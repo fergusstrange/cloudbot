@@ -27,7 +27,6 @@ public class KeyPairRetrievalUrlFactory {
     }
 
     public String create(KeyPair keyPair) {
-
         return fromUri(uri())
                 .pathSegment("keyPair")
                 .pathSegment(keyPair.getKeyName())
