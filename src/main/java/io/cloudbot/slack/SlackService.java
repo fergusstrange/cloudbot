@@ -26,8 +26,8 @@ public class SlackService {
     }
 
     @PostConstruct
-    public void  listenForDirectMessage() {
-        webSocketSlackSession.addMessagePostedListener(directMessagePostedService::processDirectMessage);
+    public void listenForDirectMessage() {
+        webSocketSlackSession.addMessagePostedListener(directMessagePostedService);
     }
 
     @PostConstruct

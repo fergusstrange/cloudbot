@@ -24,6 +24,13 @@ public class SlackServiceTest {
     private SlackService slackService;
 
     @Test
+    public void shouldAddMessagePostedListener() throws Exception {
+        slackService.listenForDirectMessage();
+
+        verify(slackSession).addMessagePostedListener(directMessagePostedService);
+    }
+
+    @Test
     public void shouldConnectToSlack() throws Exception {
         slackService.connect();
 

@@ -29,7 +29,7 @@ public class DirectMessagePostedServiceTest {
 
         given(slackAuthenticationService.userAuthenticated(event.getSender())).willReturn(true);
 
-        directMessagePostedService.processDirectMessage(event, session);
+        directMessagePostedService.onEvent(event, session);
 
         verify(session).sendMessageToUser(event.getSender(), "You are authenticated to use this service.", null);
     }
@@ -39,7 +39,7 @@ public class DirectMessagePostedServiceTest {
         SlackMessagePosted event = slackMessage();
         SlackSession session = slackSession();
 
-        directMessagePostedService.processDirectMessage(event, session);
+        directMessagePostedService.onEvent(event, session);
 
         verify(session).sendMessageToUser(event.getSender(), "You're not allowed to do that...", null);
     }
