@@ -19,7 +19,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
-public class KeyPairServiceTest {
+public class KeyPairGenerationServiceTest {
 
     @Mock
     private AmazonEC2 amazonEC2;
@@ -29,7 +29,7 @@ public class KeyPairServiceTest {
     private KeyPairRetrievalUrlFactory keyPairRetrievalUrlFactory;
 
     @InjectMocks
-    private KeyPairService keyPairService;
+    private KeyPairGenerationService keyPairGenerationService;
 
     @Test
     public void shouldCreateKeyPairCacheAndReturn() throws Exception {
@@ -42,7 +42,7 @@ public class KeyPairServiceTest {
         given(cacheManager.getCache("awsKeyPair")).willReturn(cache);
         given(keyPairRetrievalUrlFactory.create(mockKeyPair)).willReturn("http://127.0.0.1:8080/keyPair/abcdefg123456");
 
-        String keyPair = keyPairService.generateNewKey();
+        String keyPair = keyPairGenerationService.generateNewKey();
 
         assertThat(keyPair, is("http://127.0.0.1:8080/keyPair/abcdefg123456"));
     }
