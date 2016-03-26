@@ -31,9 +31,9 @@ public class KeyPairRetrievalServiceTest {
         given(cacheManager.getCache("awsKeyPair")).willReturn(cache);
         given(cache.get("abc123", KeyPair.class)).willReturn(new KeyPair().withKeyMaterial("qwerty"));
 
-        String secretKey = keyPairRetrievalService.getSecretKey("abc123");
+        KeyPair keyPair = keyPairRetrievalService.retrieveKey("abc123");
 
-        assertThat(secretKey, is("qwerty"));
+        assertThat(keyPair, is(new KeyPair().withKeyMaterial("qwerty")));
     }
 
     @Test
@@ -43,8 +43,8 @@ public class KeyPairRetrievalServiceTest {
         given(cacheManager.getCache("awsKeyPair")).willReturn(cache);
         given(cache.get("abc123", KeyPair.class)).willReturn(null);
 
-        String secretKey = keyPairRetrievalService.getSecretKey("abc123");
+        KeyPair keyPair = keyPairRetrievalService.retrieveKey("abc123");
 
-        assertThat(secretKey, nullValue());
+        assertThat(keyPair, nullValue());
     }
 }

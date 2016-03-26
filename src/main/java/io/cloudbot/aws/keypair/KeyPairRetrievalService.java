@@ -18,9 +18,8 @@ public class KeyPairRetrievalService {
         this.cacheManager = cacheManager;
     }
 
-    public String getSecretKey(String keyName) {
+    public KeyPair retrieveKey(String keyName) {
         return ofNullable(cacheManager.getCache(awsKeyPairCache).get(keyName, KeyPair.class))
-                .map(KeyPair::getKeyMaterial)
                 .orElse(null);
     }
 
