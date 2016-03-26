@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
+import static io.cloudbot.aws.keypair.KeyPairCacheConfiguration.awsKeyPairCache;
 import static java.util.UUID.randomUUID;
 
 @Component
@@ -27,7 +28,7 @@ public class KeyPairGenerationService {
 
     public String generateNewKey() {
         KeyPair keyPair = amazonEC2.createKeyPair(new CreateKeyPairRequest(randomUUID().toString())).getKeyPair();
-        cacheManager.getCache("awsKeyPair").put(keyPair.getKeyName(), keyPair);
+        cacheManager.getCache(awsKeyPairCache).put(keyPair.getKeyName(), keyPair);
         return keyPairRetrievalUrlFactory.create(keyPair);
     }
 }

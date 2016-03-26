@@ -18,6 +18,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 @EnableCaching
 public class KeyPairCacheConfiguration extends CachingConfigurerSupport {
 
+    static final String awsKeyPairCache = "awsKeyPair";
+
     @Bean
     @Override
     public CacheManager cacheManager() {
@@ -27,6 +29,6 @@ public class KeyPairCacheConfiguration extends CachingConfigurerSupport {
     }
 
     private static Collection<? extends org.springframework.cache.Cache> caches() {
-        return singletonList(new GuavaCache("awsKeyPair", CacheBuilder.newBuilder().expireAfterWrite(5, MINUTES).build()));
+        return singletonList(new GuavaCache(awsKeyPairCache, CacheBuilder.newBuilder().expireAfterWrite(5, MINUTES).build()));
     }
 }
