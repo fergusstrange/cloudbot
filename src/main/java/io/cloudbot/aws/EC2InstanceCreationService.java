@@ -1,17 +1,19 @@
 package io.cloudbot.aws;
 
 import com.amazonaws.services.ec2.AmazonEC2;
-import com.amazonaws.services.ec2.model.*;
+import com.amazonaws.services.ec2.model.CreateTagsRequest;
+import com.amazonaws.services.ec2.model.Instance;
+import com.amazonaws.services.ec2.model.Placement;
+import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import io.cloudbot.aws.keypair.KeyPairGenerationService;
-import io.cloudbot.aws.keypair.KeyPairRetrievalUrlFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.amazonaws.services.ec2.model.InstanceType.T2Micro;
+import static java.util.stream.Collectors.toList;
 
 @Component
 public class EC2InstanceCreationService {
@@ -20,25 +22,24 @@ public class EC2InstanceCreationService {
     private final AmazonEC2 client;
     private final KeyPairGenerationService keyPairGenerationService;
     private final EC2TagFactory ec2TagFactory;
-    private final KeyPairRetrievalUrlFactory keyPairRetrievalUrlFactory;
+    private final EC2InstanceCreationResultFactory ec2InstanceCreationResultFactory;
 
     @Autowired
     public EC2InstanceCreationService(AWSEnvironment awsEnvironment,
                                       AmazonEC2 client,
                                       KeyPairGenerationService keyPairGenerationService,
-                                      EC2TagFactory ec2TagFactory,
-                                      KeyPairRetrievalUrlFactory keyPairRetrievalUrlFactory) {
+                                      EC2TagFactory ec2TagFactory, EC2InstanceCreationResultFactory ec2InstanceCreationResultFactory) {
         this.awsEnvironment = awsEnvironment;
         this.client = client;
         this.keyPairGenerationService = keyPairGenerationService;
         this.ec2TagFactory = ec2TagFactory;
-        this.keyPairRetrievalUrlFactory = keyPairRetrievalUrlFactory;
+        this.ec2InstanceCreationResultFactory = ec2InstanceCreationResultFactory;
     }
 
-    public String createInstance(SlackMessagePosted event) {
+    public EC2InstanceCreationResult createInstance(SlackMessagePosted event) {
         String keyName = keyPairGenerationService.generateNewKey();
 
-        List<String> instanceIds = client.runInstances(new RunInstancesRequest()
+        List<Instance> instances = client.runInstances(new RunInstancesRequest()
                 .withImageId(awsEnvironment.getAwsDefaultImageId())
                 .withInstanceType(T2Micro)
                 .withMinCount(1)
@@ -47,13 +48,12 @@ public class EC2InstanceCreationService {
                 .withSecurityGroups(awsEnvironment.getAwsDefaultSecurityGroup())
                 .withPlacement(new Placement(awsEnvironment.getAwsDefaultPlacement())))
                 .getReservation()
-                .getInstances()
-                .stream()
+                .getInstances();
+
+        client.createTags(new CreateTagsRequest(instances.stream()
                 .map(Instance::getInstanceId)
-                .collect(Collectors.toList());
+                .collect(toList()), ec2TagFactory.create(event.getSender().getUserName(), keyName)));
 
-        client.createTags(new CreateTagsRequest(instanceIds, ec2TagFactory.create(event.getSender().getUserName(), keyName)));
-
-        return keyPairRetrievalUrlFactory.create(keyName);
+        return ec2InstanceCreationResultFactory.create(keyName, instances);
     }
 }

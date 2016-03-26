@@ -1,16 +1,17 @@
 package io.cloudbot.aws;
 
-import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.*;
 import com.ullink.slack.simpleslackapi.SlackUser;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import io.cloudbot.aws.keypair.KeyPairGenerationService;
-import io.cloudbot.aws.keypair.KeyPairRetrievalUrlFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static com.amazonaws.services.ec2.model.InstanceType.T2Micro;
 import static java.util.Collections.singletonList;
@@ -24,15 +25,15 @@ import static org.mockito.Mockito.mock;
 public class EC2InstanceCreationServiceTest {
 
     @Mock
-    private AmazonEC2Client amazonEC2;
-    @Mock
     private AWSEnvironment awsEnvironment;
+    @Mock
+    private AmazonEC2 client;
     @Mock
     private KeyPairGenerationService keyPairGenerationService;
     @Mock
     private EC2TagFactory ec2TagFactory;
     @Mock
-    private KeyPairRetrievalUrlFactory keyPairRetrievalUrlFactory;
+    private EC2InstanceCreationResultFactory ec2InstanceCreationResultFactory;
 
     @InjectMocks
     private EC2InstanceCreationService ec2InstanceCreationService;
@@ -43,10 +44,11 @@ public class EC2InstanceCreationServiceTest {
         Reservation reservation = mock(Reservation.class);
         Instance instance = mock(Instance.class);
         SlackMessagePosted event = anEvent();
+        List<Instance> instanceList = singletonList(instance);
 
         given(keyPairGenerationService.generateNewKey()).willReturn("aKeyName");
 
-        given(amazonEC2.runInstances(eq(new RunInstancesRequest()
+        given(client.runInstances(eq(new RunInstancesRequest()
                 .withImageId(awsEnvironment.getAwsDefaultImageId())
                 .withInstanceType(T2Micro)
                 .withMinCount(1)
@@ -57,13 +59,14 @@ public class EC2InstanceCreationServiceTest {
                 .willReturn(runInstancesResult);
 
         given(runInstancesResult.getReservation()).willReturn(reservation);
-        given(reservation.getInstances()).willReturn(singletonList(instance));
+        given(reservation.getInstances()).willReturn(instanceList);
         given(instance.getInstanceId()).willReturn("abcdefg123456");
-        given(keyPairRetrievalUrlFactory.create("aKeyName")).willReturn("http://127.0.0.1:8080/keyPair/aKeyName");
+        given(ec2InstanceCreationResultFactory.create("aKeyName", instanceList))
+                .willReturn(new EC2InstanceCreationResult("http://127.0.0.1:8080/keyPair/aKeyName", singletonList("127.0.0.1")));
 
-        String keyPairAccessURL = ec2InstanceCreationService.createInstance(event);
+        EC2InstanceCreationResult creationResult = ec2InstanceCreationService.createInstance(event);
 
-        assertThat(keyPairAccessURL, is("http://127.0.0.1:8080/keyPair/aKeyName"));
+        assertThat(creationResult, is(new EC2InstanceCreationResult("http://127.0.0.1:8080/keyPair/aKeyName", singletonList("127.0.0.1"))));
     }
 
     private SlackMessagePosted anEvent() {

@@ -5,6 +5,7 @@ import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
 import com.ullink.slack.simpleslackapi.replies.SlackMessageReply;
+import io.cloudbot.aws.EC2InstanceCreationResult;
 import io.cloudbot.aws.EC2InstanceCreationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +32,10 @@ public class DirectMessagePostedService implements SlackMessagePostedListener {
         logger.debug(formattedLogMessage(event));
 
         if(slackAuthenticationService.userAuthenticated(event.getSender())) {
-            String newInstancePrivateKeyURL = ec2InstanceCreationService.createInstance(event);
+            EC2InstanceCreationResult creationResult = ec2InstanceCreationService.createInstance(event);
             slackMessageReply(event, session, "Instance creation in progress. Access your private key here...");
-            slackMessageReply(event, session, newInstancePrivateKeyURL);
+            slackMessageReply(event, session, creationResult.getKeyRetrievalUrl());
+            slackMessageReply(event, session, String.format("Your new instance(s) are at %s", creationResult.getPublicIPs()));
             slackMessageReply(event, session, "This link will expire in 5 minutes and cannot be recovered.");
         } else {
             slackMessageReply(event, session, "You're not allowed to do that...");

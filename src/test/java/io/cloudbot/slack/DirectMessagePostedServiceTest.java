@@ -3,6 +3,7 @@ package io.cloudbot.slack;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.SlackUser;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
+import io.cloudbot.aws.EC2InstanceCreationResult;
 import io.cloudbot.aws.EC2InstanceCreationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,6 +33,8 @@ public class DirectMessagePostedServiceTest {
         SlackSession session = slackSession();
 
         given(slackAuthenticationService.userAuthenticated(event.getSender())).willReturn(true);
+        given(ec2InstanceCreationService.createInstance(event))
+                .willReturn(new EC2InstanceCreationResult("http://127.0.0.1:8080/keyPair/aKeyName", singletonList("127.0.0.1")));
 
         directMessagePostedService.onEvent(event, session);
 
