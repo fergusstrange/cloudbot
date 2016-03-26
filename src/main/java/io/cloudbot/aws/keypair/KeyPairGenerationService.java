@@ -15,20 +15,17 @@ public class KeyPairGenerationService {
 
     private final AmazonEC2 amazonEC2;
     private final CacheManager cacheManager;
-    private final KeyPairRetrievalUrlFactory keyPairRetrievalUrlFactory;
 
     @Autowired
     public KeyPairGenerationService(AmazonEC2 amazonEC2,
-                                    CacheManager cacheManager,
-                                    KeyPairRetrievalUrlFactory keyPairRetrievalUrlFactory) {
+                                    CacheManager cacheManager) {
         this.amazonEC2 = amazonEC2;
         this.cacheManager = cacheManager;
-        this.keyPairRetrievalUrlFactory = keyPairRetrievalUrlFactory;
     }
 
     public String generateNewKey() {
         KeyPair keyPair = amazonEC2.createKeyPair(new CreateKeyPairRequest(randomUUID().toString())).getKeyPair();
         cacheManager.getCache(awsKeyPairCache).put(keyPair.getKeyName(), keyPair);
-        return keyPairRetrievalUrlFactory.create(keyPair);
+        return keyPair.getKeyName();
     }
 }

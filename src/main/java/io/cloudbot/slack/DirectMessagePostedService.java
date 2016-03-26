@@ -5,6 +5,7 @@ import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
 import com.ullink.slack.simpleslackapi.replies.SlackMessageReply;
+import io.cloudbot.aws.EC2InstanceCreationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,13 @@ public class DirectMessagePostedService implements SlackMessagePostedListener {
     private static final Logger logger = LoggerFactory.getLogger(DirectMessagePostedService.class);
 
     private final SlackAuthenticationService slackAuthenticationService;
+    private final EC2InstanceCreationService ec2InstanceCreationService;
 
     @Autowired
-    public DirectMessagePostedService(SlackAuthenticationService slackAuthenticationService) {
+    public DirectMessagePostedService(SlackAuthenticationService slackAuthenticationService,
+                                      EC2InstanceCreationService ec2InstanceCreationService) {
         this.slackAuthenticationService = slackAuthenticationService;
+        this.ec2InstanceCreationService = ec2InstanceCreationService;
     }
 
     @Override
@@ -27,7 +31,10 @@ public class DirectMessagePostedService implements SlackMessagePostedListener {
         logger.debug(formattedLogMessage(event));
 
         if(slackAuthenticationService.userAuthenticated(event.getSender())) {
-            slackMessageReply(event, session, "You are authenticated to use this service.");
+            String newInstancePrivateKeyURL = ec2InstanceCreationService.createInstance(event);
+            slackMessageReply(event, session, "Instance creation in progress. Access your private key here...");
+            slackMessageReply(event, session, newInstancePrivateKeyURL);
+            slackMessageReply(event, session, "This link will expire in 5 minutes and cannot be recovered.");
         } else {
             slackMessageReply(event, session, "You're not allowed to do that...");
         }

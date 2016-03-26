@@ -3,6 +3,7 @@ package io.cloudbot.slack;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.SlackUser;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
+import io.cloudbot.aws.EC2InstanceCreationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -18,6 +19,8 @@ public class DirectMessagePostedServiceTest {
 
     @Mock
     private SlackAuthenticationService slackAuthenticationService;
+    @Mock
+    private EC2InstanceCreationService ec2InstanceCreationService;
 
     @InjectMocks
     private DirectMessagePostedService directMessagePostedService;
@@ -31,7 +34,7 @@ public class DirectMessagePostedServiceTest {
 
         directMessagePostedService.onEvent(event, session);
 
-        verify(session).sendMessageToUser(event.getSender(), "You are authenticated to use this service.", null);
+        verify(ec2InstanceCreationService).createInstance(event);
     }
 
     @Test

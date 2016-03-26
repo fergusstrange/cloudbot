@@ -1,6 +1,5 @@
 package io.cloudbot.aws.keypair;
 
-import com.amazonaws.services.ec2.model.KeyPair;
 import io.cloudbot.util.HostAddressResolver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +39,7 @@ public class KeyPairRetrievalUrlFactoryTest {
         given(embeddedWebApplicationContext.getEmbeddedServletContainer()).willReturn(embeddedServletContainer);
         given(embeddedServletContainer.getPort()).willReturn(8080);
 
-        String keyPairURL = keyPairRetrievalUrlFactory.create(new KeyPair().withKeyName("abcdefg123456"));
+        String keyPairURL = keyPairRetrievalUrlFactory.create("abcdefg123456");
 
         assertThat(urlPattern.matcher(keyPairURL).matches(), is(true));
     }
@@ -49,6 +48,6 @@ public class KeyPairRetrievalUrlFactoryTest {
     public void shouldThrowRuntimeExceptionWhenUnableToResolveHostname() throws Exception {
         given(hostAddressResolver.getHostAddress()).willThrow(new UnknownHostException());
 
-        keyPairRetrievalUrlFactory.create(new KeyPair().withKeyName("abcdefg123456"));
+        keyPairRetrievalUrlFactory.create("abcdefg123456");
     }
 }

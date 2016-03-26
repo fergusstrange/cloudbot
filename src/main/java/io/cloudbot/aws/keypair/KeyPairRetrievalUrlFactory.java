@@ -1,6 +1,5 @@
 package io.cloudbot.aws.keypair;
 
-import com.amazonaws.services.ec2.model.KeyPair;
 import io.cloudbot.util.HostAddressResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +28,10 @@ public class KeyPairRetrievalUrlFactory {
         this.hostAddressResolver = hostAddressResolver;
     }
 
-    public String create(KeyPair keyPair) {
+    public String create(String keyName) {
         return fromUri(uri())
                 .pathSegment("keyPair")
-                .pathSegment(keyPair.getKeyName())
+                .pathSegment(keyName)
                 .build()
                 .toUriString();
     }

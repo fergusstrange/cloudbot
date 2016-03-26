@@ -25,8 +25,6 @@ public class KeyPairGenerationServiceTest {
     private AmazonEC2 amazonEC2;
     @Mock
     private CacheManager cacheManager;
-    @Mock
-    private KeyPairRetrievalUrlFactory keyPairRetrievalUrlFactory;
 
     @InjectMocks
     private KeyPairGenerationService keyPairGenerationService;
@@ -40,10 +38,9 @@ public class KeyPairGenerationServiceTest {
         given(amazonEC2.createKeyPair(new CreateKeyPairRequest(anyString()))).willReturn(createKeyPairResult);
         given(createKeyPairResult.getKeyPair()).willReturn(mockKeyPair);
         given(cacheManager.getCache("awsKeyPair")).willReturn(cache);
-        given(keyPairRetrievalUrlFactory.create(mockKeyPair)).willReturn("http://127.0.0.1:8080/keyPair/abcdefg123456");
 
         String keyPair = keyPairGenerationService.generateNewKey();
 
-        assertThat(keyPair, is("http://127.0.0.1:8080/keyPair/abcdefg123456"));
+        assertThat(keyPair, is("abcdefg12345"));
     }
 }
