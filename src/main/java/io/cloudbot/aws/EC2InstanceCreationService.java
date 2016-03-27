@@ -50,9 +50,11 @@ public class EC2InstanceCreationService {
                 .getReservation()
                 .getInstances();
 
-        client.createTags(new CreateTagsRequest(instances.stream()
+        List<String> instanceIds = instances.stream()
                 .map(Instance::getInstanceId)
-                .collect(toList()), ec2TagFactory.create(event.getSender().getUserName(), keyName)));
+                .collect(toList());
+
+        client.createTags(new CreateTagsRequest(instanceIds, ec2TagFactory.create(event.getSender().getUserName(), keyName)));
 
         return ec2InstanceCreationResultFactory.create(keyName, instances);
     }
