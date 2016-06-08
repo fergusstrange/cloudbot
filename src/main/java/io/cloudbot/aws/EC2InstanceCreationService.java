@@ -39,14 +39,7 @@ public class EC2InstanceCreationService {
     public EC2InstanceCreationResult createInstance(SlackMessagePosted event) {
         String keyName = keyPairGenerationService.generateNewKey();
 
-        List<Instance> instances = client.runInstances(new RunInstancesRequest()
-                .withImageId(awsEnvironment.getAwsDefaultImageId())
-                .withInstanceType(T2Nano)
-                .withMinCount(1)
-                .withMaxCount(1)
-                .withKeyName(keyName)
-                .withSecurityGroups(awsEnvironment.getAwsDefaultSecurityGroup())
-                .withPlacement(new Placement(awsEnvironment.getAwsDefaultPlacement())))
+        List<Instance> instances = client.runInstances(runInstancesRequest(keyName))
                 .getReservation()
                 .getInstances();
 
@@ -57,5 +50,16 @@ public class EC2InstanceCreationService {
         client.createTags(new CreateTagsRequest(instanceIds, ec2TagFactory.create(event.getSender().getUserName(), keyName)));
 
         return ec2InstanceCreationResultFactory.create(keyName, instances);
+    }
+
+    private RunInstancesRequest runInstancesRequest(String keyName) {
+        return new RunInstancesRequest()
+                .withImageId(awsEnvironment.getAwsDefaultImageId())
+                .withInstanceType(T2Nano)
+                .withMinCount(1)
+                .withMaxCount(1)
+                .withKeyName(keyName)
+                .withSecurityGroups(awsEnvironment.getAwsDefaultSecurityGroup())
+                .withPlacement(new Placement(awsEnvironment.getAwsDefaultPlacement()));
     }
 }

@@ -3,21 +3,23 @@ package io.cloudbot.aws;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.Instance;
+import com.github.rholder.retry.RetryException;
+import com.github.rholder.retry.RetryerBuilder;
+import com.github.rholder.retry.StopStrategies;
 import io.cloudbot.aws.keypair.KeyPairRetrievalUrlFactory;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-import static java.lang.Thread.sleep;
+import static com.github.rholder.retry.WaitStrategies.fixedWait;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
-import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class EC2InstanceCreationResultFactory {
-
-    private static final Logger logger = getLogger(EC2InstanceCreationResultFactory.class);
 
     private final KeyPairRetrievalUrlFactory keyPairRetrievalUrlFactory;
     private final AmazonEC2 amazonEC2;
@@ -29,33 +31,43 @@ public class EC2InstanceCreationResultFactory {
         this.amazonEC2 = amazonEC2;
     }
 
-    public EC2InstanceCreationResult create(String keyName, List<Instance> instances) {
-
-        try {
-            int tries = 120;
-            while (amazonEC2.describeInstances(new DescribeInstancesRequest().withInstanceIds(
-                    instances.stream().map(Instance::getInstanceId).collect(toList())))
-                    .getReservations()
-                    .stream()
-                    .flatMap(reservation -> reservation.getInstances().stream())
-                    .allMatch(instance -> instance.getState().getCode() != 16) && tries > 0) {
-                tries--;
-                sleep(1000L);
-            }
-        } catch (InterruptedException e) {
-            logger.error("Interrupted whilst waiting for public IP address", e);
+    EC2InstanceCreationResult create(String keyName, List<Instance> instances) {
+        if(instancesStarted(instances)) {
+            return new EC2InstanceCreationResult(keyPairRetrievalUrlFactory.create(keyName), publicIPs(describeInstancesRequest(instances)));
         }
+        throw new RuntimeException();
+    }
 
-        List<String> publicIPs = amazonEC2.describeInstances(new DescribeInstancesRequest().withInstanceIds(
-                instances.stream().map(Instance::getInstanceId).collect(toList())))
+    private Boolean instancesStarted(List<Instance> instances) {
+        try {
+            return RetryerBuilder.<Boolean>newBuilder()
+                    .retryIfException()
+                    .retryIfResult(input -> input.equals(false))
+                    .withWaitStrategy(fixedWait(1L, SECONDS))
+                    .withStopStrategy(StopStrategies.stopAfterDelay(2L, MINUTES))
+                    .build()
+                    .call(() -> amazonEC2.describeInstances(describeInstancesRequest(instances))
+                            .getReservations()
+                            .stream()
+                            .flatMap(reservation -> reservation
+                                    .getInstances()
+                                    .stream())
+                            .allMatch(instance -> instance.getState().getCode() == 16));
+        } catch (ExecutionException | RetryException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<String> publicIPs(DescribeInstancesRequest describeInstancesRequest) {
+        return amazonEC2.describeInstances(describeInstancesRequest)
                 .getReservations()
                 .stream()
                 .flatMap(reservation -> reservation.getInstances().stream())
                 .map(Instance::getPublicIpAddress)
                 .collect(toList());
+    }
 
-        return new EC2InstanceCreationResult(
-                keyPairRetrievalUrlFactory.create(keyName),
-                publicIPs);
+    private static DescribeInstancesRequest describeInstancesRequest(List<Instance> instances) {
+        return new DescribeInstancesRequest().withInstanceIds(instances.stream().map(Instance::getInstanceId).collect(toList()));
     }
 }

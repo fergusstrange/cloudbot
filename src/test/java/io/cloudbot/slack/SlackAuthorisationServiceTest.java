@@ -13,13 +13,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SlackAuthenticationServiceTest {
+public class SlackAuthorisationServiceTest {
 
     @Mock
     private SlackEnvironment slackEnvironment;
 
     @InjectMocks
-    private SlackAuthenticationService slackAuthenticationService;
+    private SlackAuthorisationService slackAuthorisationService;
 
     @Test
     public void shouldBeAuthenticated() throws Exception {
@@ -28,7 +28,7 @@ public class SlackAuthenticationServiceTest {
         given(slackUser.getUserName()).willReturn("popeye");
         given(slackEnvironment.getSlackAdmins()).willReturn("popeye, jamie, fred");
 
-        boolean userAuthenticated = slackAuthenticationService.userAuthenticated(slackUser);
+        boolean userAuthenticated = slackAuthorisationService.userAuthorised(slackUser);
 
         assertThat(userAuthenticated, is(true));
     }
@@ -40,7 +40,7 @@ public class SlackAuthenticationServiceTest {
         given(slackUser.getUserName()).willReturn("bobby");
         given(slackEnvironment.getSlackAdmins()).willReturn("notbobby");
 
-        boolean userAuthenticated = slackAuthenticationService.userAuthenticated(slackUser);
+        boolean userAuthenticated = slackAuthorisationService.userAuthorised(slackUser);
 
         assertThat(userAuthenticated, is(false));
     }
@@ -52,7 +52,7 @@ public class SlackAuthenticationServiceTest {
         given(slackUser.getUserName()).willReturn("popeye");
         given(slackEnvironment.getSlackAdmins()).willReturn("   popeye,   george");
 
-        boolean userAuthenticated = slackAuthenticationService.userAuthenticated(slackUser);
+        boolean userAuthenticated = slackAuthorisationService.userAuthorised(slackUser);
 
         assertThat(userAuthenticated, is(true));
     }

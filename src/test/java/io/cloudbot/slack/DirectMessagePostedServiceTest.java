@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 public class DirectMessagePostedServiceTest {
 
     @Mock
-    private SlackAuthenticationService slackAuthenticationService;
+    private SlackAuthorisationService slackAuthorisationService;
     @Mock
     private EC2InstanceCreationService ec2InstanceCreationService;
 
@@ -28,25 +28,29 @@ public class DirectMessagePostedServiceTest {
     private DirectMessagePostedService directMessagePostedService;
 
     @Test
-    public void shouldReplyWithAuthenticated() throws Exception {
+    public void shouldCreateInstanceWhenAuthorised() throws Exception {
         SlackMessagePosted event = slackMessage();
         SlackSession session = slackSession();
 
-        given(slackAuthenticationService.userAuthenticated(event.getSender())).willReturn(true);
+        given(slackAuthorisationService.userAuthorised(event.getSender())).willReturn(true);
         given(ec2InstanceCreationService.createInstance(event))
                 .willReturn(new EC2InstanceCreationResult("http://127.0.0.1:8080/keyPair/aKeyName", singletonList("127.0.0.1")));
 
         directMessagePostedService.onEvent(event, session);
 
+        Thread.sleep(200L);
+
         verify(ec2InstanceCreationService).createInstance(event);
     }
 
     @Test
-    public void shouldReplyWithUnauthenticated() throws Exception {
+    public void shouldReplyWithUnauthorised() throws Exception {
         SlackMessagePosted event = slackMessage();
         SlackSession session = slackSession();
 
         directMessagePostedService.onEvent(event, session);
+
+        Thread.sleep(200L);
 
         verify(session).sendMessageToUser(event.getSender(), "You're not allowed to do that...", null);
     }

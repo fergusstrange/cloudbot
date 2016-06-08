@@ -7,16 +7,16 @@ import org.springframework.stereotype.Component;
 import java.util.stream.Stream;
 
 @Component
-public class SlackAuthenticationService {
+public class SlackAuthorisationService {
 
     private final SlackEnvironment slackEnvironment;
 
     @Autowired
-    public SlackAuthenticationService(SlackEnvironment slackEnvironment) {
+    public SlackAuthorisationService(SlackEnvironment slackEnvironment) {
         this.slackEnvironment = slackEnvironment;
     }
 
-    public boolean userAuthenticated(SlackUser user) {
+    public boolean userAuthorised(SlackUser user) {
         return Stream.of(slackEnvironment.getSlackAdmins().trim().split(","))
                 .anyMatch(authUser -> authUser.equals(user.getUserName()));
     }
